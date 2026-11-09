@@ -1,0 +1,16 @@
+# Roadmap
+
+Current phase: **0 complete. Waiting on team review and client answers.**
+
+| Phase | Work | Status | Exit condition |
+|---|---|---|---|
+| 0. Discovery | Analysis, guidance structure, question list | Done | `.agent/` reviewed |
+| 1. Client input | Send `open-questions.md`, register domain | Next | Q1 to Q7 answered |
+| 2. Foundation | Scaffold, tokens, layout, logo exports, content types | Not started | Deployed preview with header and footer |
+| 3. Catalogue | Category and product pages, static generation | Not started | All products render from `content/` |
+| 4. Enquiry | List, forms, storage, email, WhatsApp, spam protection | Not started | Test enquiry reaches Sheet and inbox |
+| 5. Content | Home, services, about, freeze-drying, legal | Not started | Copy passes `review-claims` and client approves |
+| 6. Launch | SEO, analytics, launch gates | Not started | All gates in `seo-and-launch.md` ticked |
+| 7. After launch | Monitor enquiries, Search Console, content additions | Not started | Monthly review |
+
+Phases 2 to 4 can start before all content arrives. Phases 5 and 6 cannot finish without Q5 and Q6.
