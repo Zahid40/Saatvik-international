@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react';
 import { featuredFlavours } from './flavours';
 import { Icon } from './visuals';
 
@@ -12,8 +12,8 @@ export function FlavourHero() {
   const [hidden, setHidden] = useState(false);
   const [status, setStatus] = useState('');
   const requested = useRef(0);
-  const motion = useRef(null);
-  const transition = useRef(null);
+  const motion = useRef<MediaQueryList | null>(null);
+  const transition = useRef<ReturnType<typeof setTimeout> | null>(null);
   const announce = useRef(false);
   const flavour = featuredFlavours[current];
 
@@ -21,19 +21,19 @@ export function FlavourHero() {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
     motion.current = preference;
     if (preference.matches) setPaused(true);
-    function changeMotion(event) { if (event.matches) setPaused(true); }
+    function changeMotion(event: MediaQueryListEvent) { if (event.matches) setPaused(true); }
     function changeVisibility() { setHidden(document.hidden); }
     changeVisibility();
     preference.addEventListener('change', changeMotion);
     document.addEventListener('visibilitychange', changeVisibility);
     return () => {
-      clearTimeout(transition.current);
+      if (transition.current) clearTimeout(transition.current);
       preference.removeEventListener('change', changeMotion);
       document.removeEventListener('visibilitychange', changeVisibility);
     };
   }, []);
 
-  function select(index, manual) {
+  function select(index: number, manual: boolean) {
     const size = featuredFlavours.length;
     requested.current = (index + size) % size;
     if (requested.current === current && transition.current === null) return;
@@ -63,12 +63,12 @@ export function FlavourHero() {
     return () => clearTimeout(timer);
   }, [current, paused, focused, hidden, switching]);
 
-  function pauseForFocus(event) {
+  function pauseForFocus(event: FocusEvent<HTMLElement>) {
     const target = event.type === 'blur' ? event.relatedTarget : event.target;
-    setFocused(!!target && event.currentTarget.contains(target) && !target.closest('.hero-toggle'));
+    setFocused(target instanceof Element && event.currentTarget.contains(target) && !target.closest('.hero-toggle'));
   }
 
-  function useArrows(event) {
+  function useArrows(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
     event.preventDefault();
     select(requested.current + (event.key === 'ArrowLeft' ? -1 : 1), true);

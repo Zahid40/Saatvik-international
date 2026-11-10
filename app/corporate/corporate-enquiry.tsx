@@ -1,11 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, type CSSProperties, type FormEvent } from 'react';
 import { Icon } from '../visuals';
-import { products } from '../products';
+import { products, type ProductId } from '../products';
 
-function generateCorporateId() {
+interface CorporateReceipt {
+  id: string;
+  company?: string;
+}
+
+function generateCorporateId(): string {
   const num = Math.floor(100000 + Math.random() * 900000);
   return `CORP-${num}`;
 }
@@ -28,13 +33,13 @@ const tiers = [
 export function CorporateEnquiry() {
   const [occasion, setOccasion] = useState(occasions[0]);
   const [selectedTier, setSelectedTier] = useState(tiers[1]);
-  const [selectedFlavours, setSelectedFlavours] = useState(['masala', 'cheese', 'peri', 'onion']);
+  const [selectedFlavours, setSelectedFlavours] = useState<ProductId[]>(['masala', 'cheese', 'peri', 'onion']);
   const [customBranding, setCustomBranding] = useState(true);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
-  const [receipt, setReceipt] = useState(null);
+  const [receipt, setReceipt] = useState<CorporateReceipt | null>(null);
 
-  function toggleFlavour(id) {
+  function toggleFlavour(id: ProductId) {
     setSelectedFlavours(prev =>
       prev.includes(id)
         ? prev.length > 1 ? prev.filter(f => f !== id) : prev
@@ -42,7 +47,7 @@ export function CorporateEnquiry() {
     );
   }
 
-  async function handleSubmit(event) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
     setError('');
@@ -72,7 +77,7 @@ export function CorporateEnquiry() {
         body: JSON.stringify(payload),
       });
 
-      const result = await res.json();
+      const result = await res.json() as CorporateReceipt & { error?: string };
       if (!res.ok || !result.id) {
         setError(result.error || 'Failed to submit enquiry. Please try again.');
         return;
@@ -201,7 +206,7 @@ export function CorporateEnquiry() {
                     type="button"
                     className={`b2b-flavour-card ${active ? 'is-selected' : ''}`}
                     onClick={() => toggleFlavour(p.id)}
-                    style={{ '--flavour-tint': p.tint }}
+                    style={{ '--flavour-tint': p.tint } as CSSProperties}
                   >
                     <span className="flavour-check-mark">{active ? <Icon name="check" /> : '+'}</span>
                     <div className="flavour-card-info">
@@ -319,7 +324,7 @@ export function CorporateEnquiry() {
               {selectedFlavours.map(id => {
                 const prod = products.find(p => p.id === id);
                 return (
-                  <span key={id} className="selected-flavour-badge" style={{ '--flavour-tint': prod?.tint }}>
+                  <span key={id} className="selected-flavour-badge" style={{ '--flavour-tint': prod?.tint } as CSSProperties}>
                     {prod?.name}
                   </span>
                 );

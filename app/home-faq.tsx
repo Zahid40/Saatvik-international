@@ -33,9 +33,9 @@ const minimalFaqItems = [
 ];
 
 export function HomeFaq() {
-  const [openId, setOpenId] = useState('faq-roasted');
+  const [openId, setOpenId] = useState<string | null>('faq-roasted');
 
-  function toggle(id) {
+  function toggle(id: string) {
     setOpenId((prev) => (prev === id ? null : id));
   }
 

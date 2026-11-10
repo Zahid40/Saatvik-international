@@ -170,9 +170,9 @@ const corporateFaqData = [
 
 export function CorporateFaq() {
   const [activeTab, setActiveTab] = useState('orders');
-  const [openIds, setOpenIds] = useState(() => new Set(['corp-faq-moq', 'corp-faq-sample-box']));
+  const [openIds, setOpenIds] = useState(() => new Set<string>(['corp-faq-moq', 'corp-faq-sample-box']));
 
-  function toggleItem(id) {
+  function toggleItem(id: string) {
     setOpenIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);

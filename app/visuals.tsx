@@ -42,6 +42,6 @@ export function SvgLibrary() {
   );
 }
 
-export function Icon({ name }) {
+export function Icon({ name }: { name: string }) {
   return <svg className="icon" aria-hidden="true"><use href={`#${name}`} /></svg>;
 }

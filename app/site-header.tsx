@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MouseEventHandler } from 'react';
 import { PanelButton, useShop } from './shop';
 import { Icon } from './visuals';
 import { quantityTotal } from './products';
 
 const messages = ['FOUR FLAVOURS. ONE BIG CRUNCH.', 'SNACK ON, GUILT OFF.', 'ROASTED MAKHANA', 'BUILD YOUR OWN 3-PACK', 'FIND YOUR FAVOURITE FLAVOUR'];
 
-function Announcement({ home }) {
+function Announcement({ home }: { home: boolean }) {
   const [paused, setPaused] = useState(false);
   if (!home) return <div className="announcement">{messages[0]}</div>;
 
@@ -28,7 +28,7 @@ function Announcement({ home }) {
   );
 }
 
-function NavLinks({ onClick }) {
+function NavLinks({ onClick }: { onClick?: MouseEventHandler<HTMLAnchorElement> }) {
   return (
     <>
       <Link href="/catalog" onClick={onClick}>Catalog</Link>
@@ -44,7 +44,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const { cart, wishlist } = useShop();
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuButton = useRef(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
   const quantity = quantityTotal(cart);
   useEffect(() => setMenuOpen(false), [pathname]);
   const isHome = pathname === '/';

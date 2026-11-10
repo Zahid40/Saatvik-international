@@ -1,13 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { DrawerRow } from '../drawer';
 import { Icon } from '../visuals';
-import { products, quantityTotal } from '../products';
+import { products, quantityTotal, type Quantities } from '../products';
 import { PanelButton, useShop } from '../shop';
 
-function createEnquiryId() {
+interface EnquiryReceipt {
+  id: string;
+  items: Quantities;
+}
+
+interface PendingRequest {
+  payload: string;
+  id: string;
+}
+
+function createEnquiryId(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(16));
   bytes[6] = (bytes[6] & 0x0f) | 0x40;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
@@ -19,9 +29,9 @@ export function EnquiryCheckout() {
   const { cart, removeSubmitted } = useShop();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
-  const [receipt, setReceipt] = useState(null);
-  const request = useRef(null);
-  const confirmation = useRef(null);
+  const [receipt, setReceipt] = useState<EnquiryReceipt | null>(null);
+  const request = useRef<PendingRequest | null>(null);
+  const confirmation = useRef<HTMLDivElement>(null);
   const quantities = receipt?.items ?? cart;
   const selected = products.filter(product => quantities[product.id]);
   const count = quantityTotal(quantities);
@@ -30,11 +40,11 @@ export function EnquiryCheckout() {
     if (receipt) confirmation.current?.focus();
   }, [receipt]);
 
-  async function submit(event) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (pending || !count) return;
     const items = { ...cart };
-    const details = Object.fromEntries(new FormData(event.currentTarget));
+    const details = Object.fromEntries(new FormData(event.currentTarget)) as Record<string, string>;
     const payload = JSON.stringify({ ...details, items });
     if (request.current?.payload !== payload) request.current = { payload, id: createEnquiryId() };
     setPending(true);
@@ -44,9 +54,9 @@ export function EnquiryCheckout() {
       const response = await fetch('/api/enquiries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...details, items, id: request.current.id }),
+        body: JSON.stringify({ ...details, items, id: request.current?.id }),
       });
-      const result = await response.json();
+      const result = await response.json() as { id?: string; error?: string };
       if (!response.ok || !result.id) {
         setError(result.error || 'Could not send your enquiry. Please try again.');
         return;

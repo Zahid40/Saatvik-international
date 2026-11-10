@@ -6,8 +6,8 @@ Next.js is accepted. Everything else here is proposed: see `decisions.md`. Use c
 
 | Layer | Choice |
 |---|---|
-| Framework | Next.js App Router, TypeScript strict |
-| Styling | Tailwind CSS with tokens from `design-system.md` |
+| Framework | Next.js 16 App Router, React 19, TypeScript strict |
+| Styling | Tailwind CSS v4 and shadcn/ui (Base Nova) with tokens from `design-system.md` |
 | Content | Typed files in `content/` |
 | Validation | Zod, shared by client and server |
 | Lead storage | Google Sheet through a service account |

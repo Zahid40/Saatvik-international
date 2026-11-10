@@ -2,7 +2,15 @@ import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
-let database;
+export interface EnquiryDetails {
+  name: string;
+  email: string;
+  phone: string;
+  city: string;
+  message: string;
+}
+
+let database: DatabaseSync | undefined;
 
 function getDatabase() {
   if (database) return database;
@@ -20,7 +28,7 @@ function getDatabase() {
   return database;
 }
 
-export function saveEnquiry(id, details, items) {
+export function saveEnquiry(id: string, details: EnquiryDetails, items: unknown) {
   getDatabase().prepare(
     'INSERT INTO enquiries (id, name, email, phone, city, message, items_json) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING',
   ).run(id, details.name, details.email, details.phone, details.city, details.message, JSON.stringify(items));

@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { AddButton, products } from './products';
+import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react';
+import { AddButton, products, type Product } from './products';
 import { useShop } from './shop';
 import { Icon } from './visuals';
 
@@ -10,7 +10,13 @@ const tastes = [
   ['all', 'All flavours'],
   ['spiced', 'Spiced'],
   ['mellow', 'Cheesy & creamy'],
-];
+] as const;
+
+type Taste = typeof tastes[number][0];
+
+function tintStyle(tint: string): CSSProperties {
+  return { '--tint': tint } as CSSProperties;
+}
 
 export function CravingGrid() {
   return (
@@ -18,7 +24,7 @@ export function CravingGrid() {
       {products.map(product => {
         const bite = product.id === 'onion' ? 'bite' : 'bite-' + product.id;
         return (
-          <a key={product.id} className="craving-card" href={`#flavour-${product.id}`} style={{ '--tint': product.tint }}>
+          <a key={product.id} className="craving-card" href={`#flavour-${product.id}`} style={tintStyle(product.tint)}>
             <span className="craving-art" aria-hidden="true">
               {[0, 1, 2].map(index => <svg className="craving-bite" key={index}><use href={`#${bite}`} /></svg>)}
             </span>
@@ -30,14 +36,15 @@ export function CravingGrid() {
   );
 }
 
-function ProductCard({ product, hidden }) {
+function ProductCard({ product, hidden }: { product: Product; hidden: boolean }) {
   const { addJar, wishlist, toggleFavourite } = useShop();
   return (
-    <article className="product-card" id={`flavour-${product.id}`} data-reveal="" hidden={hidden} style={{ '--tint': product.tint }}>
+    <article className="product-card" id={`flavour-${product.id}`} data-reveal="" hidden={hidden} style={tintStyle(product.tint)}>
       <button className="favourite-button" type="button" aria-pressed={wishlist.includes(product.id)}
         aria-label={`Save ${product.name} as a favourite`} onClick={event => {
-          if (wishlist.includes(product.id) && event.currentTarget.closest('#flavours').querySelector('.saved-filter[aria-pressed=true]')) {
-            event.currentTarget.closest('#flavours').querySelector('.saved-filter').focus({ preventScroll: true });
+          const flavours = event.currentTarget.closest('#flavours');
+          if (wishlist.includes(product.id) && flavours?.querySelector('.saved-filter[aria-pressed=true]')) {
+            flavours.querySelector<HTMLButtonElement>('.saved-filter')?.focus({ preventScroll: true });
           }
           toggleFavourite(product);
         }}><Icon name="heart-icon" /></button>
@@ -53,13 +60,13 @@ function ProductCard({ product, hidden }) {
   );
 }
 
-export function Lineup({ collection = false }) {
+export function Lineup({ collection = false }: { collection?: boolean }) {
   const { wishlist } = useShop();
   const [savedOnly, setSavedOnly] = useState(false);
-  const [taste, setTaste] = useState('all');
+  const [taste, setTaste] = useState<Taste>('all');
 
   useEffect(() => {
-    function showTarget(hash) {
+    function showTarget(hash: string) {
       if (!hash.startsWith('#flavour-')) return;
       const target = document.getElementById(hash.slice(1));
       if (!target?.hidden) return;
@@ -68,8 +75,8 @@ export function Lineup({ collection = false }) {
       requestAnimationFrame(() => target.scrollIntoView());
     }
     function onHash() { showTarget(location.hash); }
-    function onClick(event) {
-      const target = event.target.closest('a[href^="#flavour-"]');
+    function onClick(event: globalThis.MouseEvent) {
+      const target = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href^="#flavour-"]') : null;
       if (target) showTarget(target.hash);
     }
     window.addEventListener('hashchange', onHash);

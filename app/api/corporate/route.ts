@@ -2,13 +2,28 @@ import { saveEnquiry } from '../../../lib/enquiry-store';
 
 export const runtime = 'nodejs';
 
-function json(body, status) {
+interface CorporateEnquiryRequest {
+  name?: string;
+  company?: string;
+  email?: string;
+  phone?: string;
+  city?: string;
+  quantity?: string;
+  occasion?: string;
+  customBranding?: boolean;
+  deliveryDate?: string;
+  flavours?: string[];
+  message?: string;
+  id?: string;
+}
+
+function json(body: unknown, status: number) {
   return Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 }
 
-export async function POST(request) {
+export async function POST(request: Request) {
   try {
-    const data = await request.json();
+    const data = await request.json() as CorporateEnquiryRequest;
     const {
       name,
       company,
@@ -24,7 +39,7 @@ export async function POST(request) {
       id,
     } = data;
 
-    if (!name || !email || !company) {
+    if (!name || !email || !company || !id) {
       return json({ error: 'Please enter your name, company name, and work email.' }, 400);
     }
 

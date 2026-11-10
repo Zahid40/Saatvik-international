@@ -6,7 +6,7 @@ B2B website for Saatvik International, a Pune-based healthy-snack trader, wholes
 
 ## Status
 
-Discovery is finished. No application code exists yet. See [.agent/developer/roadmap.md](.agent/developer/roadmap.md).
+Discovery is finished and the Next.js foundation is in progress. See [.agent/developer/roadmap.md](.agent/developer/roadmap.md).
 
 ## Read before working
 
@@ -16,4 +16,11 @@ Discovery is finished. No application code exists yet. See [.agent/developer/roa
 
 ## Commands
 
-Not defined yet. Add `dev`, `build`, `lint`, `test` here when the app is scaffolded. Use npm: pnpm is not installed on the current dev machine.
+Use npm: pnpm is not installed on the current dev machine.
+
+- `npm run dev`: start the local Next.js development server with webpack.
+- `npm run build`: create the production build.
+- `npm run start`: serve the production build.
+- `npm run typecheck`: run strict TypeScript checks without emitting files.
+
+Lint and automated test commands are not configured yet.

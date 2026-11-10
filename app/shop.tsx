@@ -1,25 +1,49 @@
 'use client';
 
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ButtonHTMLAttributes,
+  type PropsWithChildren,
+} from 'react';
 import { usePathname } from 'next/navigation';
 import { Drawer } from './drawer';
-import { products } from './products';
+import { products, type Product, type ProductId, type Quantities } from './products';
 
-const ShopContext = createContext(null);
+export type Panel = 'cart' | 'wishlist' | 'builder' | 'search' | null;
+
+interface FavouriteOptions {
+  announce?: boolean;
+}
+
+interface ShopContextValue {
+  cart: Quantities;
+  wishlist: ProductId[];
+  openPanel: (panel: Panel) => void;
+  addJar: (product: Product) => void;
+  toggleFavourite: (product: Product, options?: FavouriteOptions) => void;
+  removeSubmitted: (items: Quantities) => void;
+}
+
+const ShopContext = createContext<ShopContextValue | null>(null);
 const bagKey = 'snack-munch-bag';
 const wishlistKey = 'snack-munch-favourites';
-const emptyBag = {};
-const emptyWishlist = [];
+const emptyBag: Quantities = {};
+const emptyWishlist: ProductId[] = [];
 
-function readBrowserValue(key, fallback) {
+function readBrowserValue<T>(key: string, fallback: T): T {
   try {
-    return JSON.parse(localStorage.getItem(key)) ?? fallback;
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) as T : fallback;
   } catch {
     return fallback;
   }
 }
 
-function writeBrowserValue(key, value) {
+function writeBrowserValue(key: string, value: unknown) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
@@ -27,35 +51,43 @@ function writeBrowserValue(key, value) {
   }
 }
 
-function readBag() {
-  const saved = readBrowserValue(bagKey, emptyBag);
+function readBag(): Quantities {
+  const saved = readBrowserValue<Record<string, unknown>>(bagKey, emptyBag);
   return Object.fromEntries(products.flatMap(({ id }) =>
-    Number.isSafeInteger(saved[id]) && saved[id] > 0 ? [[id, saved[id]]] : [],
-  ));
+    typeof saved[id] === 'number' && Number.isSafeInteger(saved[id]) && saved[id] > 0 ? [[id, saved[id]]] : [],
+  )) as Quantities;
 }
 
 export function useShop() {
-  return useContext(ShopContext);
+  const context = useContext(ShopContext);
+  if (!context) throw new Error('useShop must be used inside ShopProvider.');
+  return context;
 }
 
-export function PanelButton({ panel, children, ...props }) {
+interface PanelButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  panel: Exclude<Panel, null>;
+}
+
+export function PanelButton({ panel, children, ...props }: PanelButtonProps) {
   const { openPanel } = useShop();
   return <button {...props} type="button" onClick={() => openPanel(panel)}>{children}</button>;
 }
 
-export function ShopProvider({ children }) {
-  const [cart, setCart] = useState(null);
-  const [wishlist, setWishlist] = useState(null);
-  const [panel, openPanel] = useState(null);
+export function ShopProvider({ children }: PropsWithChildren) {
+  const [cart, setCart] = useState<Quantities | null>(null);
+  const [wishlist, setWishlist] = useState<ProductId[] | null>(null);
+  const [panel, openPanel] = useState<Panel>(null);
   const [toast, setToast] = useState('');
-  const toastTimer = useRef(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
     setCart(current => current ?? readBag());
     const saved = readBrowserValue(wishlistKey, emptyWishlist);
     setWishlist(current => current ?? products.filter(({ id }) => Array.isArray(saved) && saved.includes(id)).map(({ id }) => id));
-    return () => clearTimeout(toastTimer.current);
+    return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -69,11 +101,11 @@ export function ShopProvider({ children }) {
   useEffect(() => {
     openPanel(null);
     const observer = 'IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      ? new IntersectionObserver(entries => {
+      ? new IntersectionObserver((entries, activeObserver) => {
           for (const entry of entries) {
             if (!entry.isIntersecting) continue;
             entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target);
+            activeObserver.unobserve(entry.target);
           }
         }, { threshold: 0.12 })
       : null;
@@ -86,7 +118,7 @@ export function ShopProvider({ children }) {
     };
   }, [pathname]);
 
-  function changeQuantity(id, delta) {
+  function changeQuantity(id: ProductId, delta: number) {
     setCart(current => {
       const bag = { ...(current ?? readBag()) };
       const quantity = (bag[id] || 0) + delta;
@@ -96,42 +128,44 @@ export function ShopProvider({ children }) {
     });
   }
 
-  function removeSubmitted(items) {
+  function removeSubmitted(items: Quantities) {
     setCart(current => {
       const bag = { ...(current ?? readBag()) };
       for (const [id, count] of Object.entries(items)) {
-        const remaining = (bag[id] || 0) - count;
-        if (remaining > 0) bag[id] = remaining;
-        else delete bag[id];
+        const productId = id as ProductId;
+        const remaining = (bag[productId] || 0) - (count ?? 0);
+        if (remaining > 0) bag[productId] = remaining;
+        else delete bag[productId];
       }
       return bag;
     });
   }
 
-  function addJar(product) {
+  function addJar(product: Product) {
     changeQuantity(product.id, 1);
     openPanel('cart');
   }
 
-  function addPack(pack) {
+  function addPack(pack: Quantities) {
     setCart(current => {
       const bag = { ...(current ?? readBag()) };
       for (const [id, quantity] of Object.entries(pack)) {
-        if (quantity) bag[id] = (bag[id] || 0) + quantity;
+        const productId = id as ProductId;
+        if (quantity) bag[productId] = (bag[productId] || 0) + quantity;
       }
       return bag;
     });
     openPanel('cart');
   }
 
-  function toggleFavourite(product, { announce = true } = {}) {
+  function toggleFavourite(product: Product, { announce = true }: FavouriteOptions = {}) {
     const isSaved = wishlist?.includes(product.id);
     setWishlist(current => isSaved
       ? (current ?? emptyWishlist).filter(id => id !== product.id)
       : [...new Set([...(current ?? emptyWishlist), product.id])]);
     if (!announce) return;
     setToast(product.name + (isSaved ? ' removed from wishlist' : ' saved to wishlist'));
-    clearTimeout(toastTimer.current);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(''), 2300);
   }
 

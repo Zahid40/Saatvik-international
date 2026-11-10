@@ -1,4 +1,5 @@
 import { saveEnquiry } from '../../../lib/enquiry-store';
+import type { EnquiryDetails } from '../../../lib/enquiry-store';
 
 export const runtime = 'nodejs';
 
@@ -6,11 +7,11 @@ const productIds = new Set(['masala', 'cheese', 'peri', 'onion']);
 const fieldLimits = { name: 100, email: 150, phone: 30, city: 100, message: 1000 };
 const requestIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-function json(body, status) {
+function json(body: unknown, status: number) {
   return Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 }
 
-export async function POST(request) {
+export async function POST(request: Request) {
   const url = new URL(request.url);
   const origin = request.headers.get('Origin');
   const fetchSite = request.headers.get('Sec-Fetch-Site');
@@ -22,11 +23,11 @@ export async function POST(request) {
   if (!request.headers.get('Content-Type')?.startsWith('application/json')) return json({ error: 'Expected enquiry details.' }, 415);
   if (Number(request.headers.get('Content-Length')) > 8192) return json({ error: 'The enquiry is too long.' }, 413);
 
-  let data;
+  let data: Record<string, unknown>;
   try {
     const body = await request.text();
     if (body.length > 8192) return json({ error: 'The enquiry is too long.' }, 413);
-    data = JSON.parse(body);
+    data = JSON.parse(body) as Record<string, unknown>;
   } catch {
     return json({ error: 'Could not read the enquiry.' }, 400);
   }
@@ -34,8 +35,9 @@ export async function POST(request) {
     return json({ error: 'Invalid enquiry reference. Refresh and try again.' }, 400);
   }
 
-  const details = {};
-  for (const [field, limit] of Object.entries(fieldLimits)) {
+  const details = {} as EnquiryDetails;
+  for (const field of Object.keys(fieldLimits) as Array<keyof typeof fieldLimits>) {
+    const limit = fieldLimits[field];
     const value = data[field];
     if (typeof value !== 'string' || value.trim().length > limit) {
       return json({ error: 'Please check the length of your details.' }, 400);
@@ -49,8 +51,8 @@ export async function POST(request) {
     return json({ error: 'Add at least one flavour to your bag.' }, 400);
   }
 
-  const items = Object.entries(data.items);
-  if (!items.length || items.some(([id, quantity]) => !productIds.has(id) || !Number.isSafeInteger(quantity) || quantity < 1)) {
+  const items = Object.entries(data.items as Record<string, unknown>);
+  if (!items.length || items.some(([id, quantity]) => !productIds.has(id) || typeof quantity !== 'number' || !Number.isSafeInteger(quantity) || quantity < 1)) {
     return json({ error: 'Please check your bag quantities.' }, 400);
   }
 

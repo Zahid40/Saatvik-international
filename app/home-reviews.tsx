@@ -228,17 +228,17 @@ const categoryTabs = [
 export function HomeReviews() {
   const [activeTab, setActiveTab] = useState('all');
   const [isPaused, setIsPaused] = useState(false);
-  const trackRef = useRef(null);
-  const pauseTimeoutRef = useRef(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const filteredReviews = activeTab === 'all'
     ? reviewsData
     : reviewsData.filter((r) => r.flavourId === activeTab);
 
-  function scroll(direction) {
+  function scroll(direction: 'next' | 'prev') {
     if (!trackRef.current) return;
     const track = trackRef.current;
-    const card = track.firstElementChild;
+    const card = track.firstElementChild as HTMLElement | null;
     const cardWidth = card ? card.offsetWidth : 340;
     const gap = 20;
     const step = cardWidth + gap;
@@ -271,7 +271,7 @@ export function HomeReviews() {
     return () => clearInterval(timer);
   }, [isPaused, filteredReviews]);
 
-  function handleManualScroll(direction) {
+  function handleManualScroll(direction: 'next' | 'prev') {
     // When user manually clicks next/prev, scroll immediately and pause auto-scroll briefly
     setIsPaused(true);
     scroll(direction);
@@ -281,7 +281,7 @@ export function HomeReviews() {
     }, 6000);
   }
 
-  function handleFilterClick(tabId) {
+  function handleFilterClick(tabId: string) {
     setActiveTab(tabId);
     if (trackRef.current) {
       trackRef.current.scrollTo({ left: 0, behavior: 'smooth' });
@@ -369,7 +369,7 @@ export function HomeReviews() {
         role="region"
         aria-roledescription="carousel"
         aria-label="Customer review cards"
-        tabIndex="0"
+        tabIndex={0}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={() => setIsPaused(true)}
@@ -395,7 +395,8 @@ export function HomeReviews() {
                   onError={(e) => {
                     // Fallback to initials avatar if image error
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling.style.display = 'flex';
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
+                    if (fallback) fallback.style.display = 'flex';
                   }}
                 />
                 <div className="reviewer-avatar-fallback" aria-hidden="true" style={{ display: 'none' }}>

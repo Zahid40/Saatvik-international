@@ -112,3 +112,5 @@ export const allFaqs = [
     badge: '100% Guarantee',
   },
 ];
+
+export type FaqItemData = typeof allFaqs[number];

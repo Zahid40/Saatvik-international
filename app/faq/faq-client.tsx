@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { useId, useMemo, useState } from 'react';
-import { allFaqs, faqCategories } from './faq-data';
+import { allFaqs, faqCategories, type FaqItemData } from './faq-data';
 import { Icon } from '../visuals';
 
-function FaqItem({ item, isOpen, onToggle }) {
+function FaqItem({ item, isOpen, onToggle }: { item: FaqItemData; isOpen: boolean; onToggle: () => void }) {
   const contentId = useId();
 
   return (
@@ -46,9 +46,9 @@ function FaqItem({ item, isOpen, onToggle }) {
 export function FaqClient() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [openItems, setOpenItems] = useState(() => new Set(['moq-bulk', 'free-tasting-box']));
+  const [openItems, setOpenItems] = useState(() => new Set<string>(['moq-bulk', 'free-tasting-box']));
 
-  function toggleItem(id) {
+  function toggleItem(id: string) {
     setOpenItems(prev => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -65,7 +65,7 @@ export function FaqClient() {
   }
 
   function collapseAll() {
-    setOpenItems(new Set());
+    setOpenItems(new Set<string>());
   }
 
   const filteredFaqs = useMemo(() => {
