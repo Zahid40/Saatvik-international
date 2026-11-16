@@ -64,7 +64,7 @@ export function CategoryGrid() {
 
 // Product card (2026-11-13): coloured image area with an option pill and a category sticker,
 // white name strip below, and stacked actions over the image (on hover/focus; always on touch).
-function ProductCard({ product, hidden }: { product: Product; hidden: boolean }) {
+export function ProductCard({ product, hidden = false }: { product: Product; hidden?: boolean }) {
   const { addJar } = useShop();
   const category = categoryOf(product);
   return (

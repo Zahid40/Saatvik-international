@@ -8,7 +8,6 @@ import { HomeTradeEnquiry } from './home-trade-enquiry';
 import { StickerHeading } from './sticker-heading';
 import { HomeAbout } from './home-about';
 import { WhySaatvik } from './why-saatvik';
-import { MakhanaGrades } from './makhana-grades';
 import { PuffsFlow } from './puffs-flow';
 import { FloatingSnackDecor } from './floating-snack-decor';
 import { HomeExportsAndCertifications, HomePackingOptions } from './home-trade-sections';
@@ -38,7 +37,6 @@ export default function Page() {
       <HomeAbout />
       <PuffsFlow />
       <Lineup />
-      <MakhanaGrades />
       <section className="shell bundle-shell" id="build" aria-labelledby="bundle-title">
         <div className="bundle">
           <div className="bundle-copy">

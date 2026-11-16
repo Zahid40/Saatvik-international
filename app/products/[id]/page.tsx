@@ -7,6 +7,7 @@ import { categoryOf, products } from '@/content/catalogue';
 import { gradeSizeLabel, makhanaGradeNote } from '@/content/makhana-grades';
 import { freezeDryingSteps, packingFormats, packingPromises, productDetail, themeFor, type ProductTheme } from '@/content/product-details';
 import { Icon } from '../../visuals';
+import { ProductCard } from '../../lineup';
 import { ProductEnquiry, type ProductOption } from './product-enquiry';
 
 const themeStyle = (theme: ProductTheme) => ({ '--pdp-bg': theme.bg, '--pdp-tile': theme.tile, '--pdp-title': theme.title, '--pdp-on-tile': theme.onTile }) as CSSProperties;
@@ -40,7 +41,11 @@ export default async function ProductPage({ params }: Params) {
   if (!product) notFound();
   const category = categoryOf(product);
   const detail = productDetail(product);
-  const related = products.filter(item => item.category === product.category && item.id !== product.id);
+  // Same-category products first, then others: 3 cards on desktop (as on All Products), 4 on 2-column screens.
+  const related = [
+    ...products.filter(item => item.category === product.category && item.id !== product.id),
+    ...products.filter(item => item.category !== product.category),
+  ].slice(0, 4);
   const options: ProductOption[] = [];
   if (detail.grades) options.push({ id: 'grade', label: 'Grade', initial: '5-sutta', items: detail.grades.map(grade => ({ id: grade.id, label: `${grade.sutta} Sutta · ${grade.grade} (${gradeSizeLabel(grade)})`, short: `${grade.sutta} Sutta` })) });
   if (detail.flavours) options.push({ id: 'flavour', label: 'Flavour', items: detail.flavours.map(flavour => ({ id: flavour.id, label: flavour.name, short: flavour.name, colour: flavour.colour })) });
@@ -132,19 +137,11 @@ export default async function ProductPage({ params }: Params) {
         </article>
 
         {related.length > 0 && (
-          <section className="pdp-related" aria-labelledby="pdp-related-title">
-            <h2 id="pdp-related-title">More {category.name.toLowerCase()}</h2>
-            <ul>
-              {related.map(item => (
-                <li key={item.id}>
-                  <Link href={`/products/${item.id}`} className="pdp-related-card" style={themeStyle(themeFor(item.id))}>
-                    <span className="pdp-related-media">{item.image && <img src={item.image.src} width={item.image.width} height={item.image.height} alt="" loading="lazy" decoding="async" />}</span>
-                    <span className="pdp-related-name">{item.name}</span>
-                    <span className="pdp-related-mood">{item.mood}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <section className="pdp-related collection-lineup" aria-labelledby="pdp-related-title">
+            <h2 id="pdp-related-title">You may also like</h2>
+            <div className="product-grid">
+              {related.map(item => <ProductCard key={item.id} product={item} />)}
+            </div>
           </section>
         )}
       </div>
