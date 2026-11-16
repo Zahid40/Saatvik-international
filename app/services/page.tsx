@@ -54,7 +54,7 @@ export default function ServicesPage() {
     <main id="main" className="content-page services-page shell">
       <nav className="breadcrumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span aria-current="page">Services</span></nav>
       <header className="content-page-header">
-        <StickerHeading id="services-title" kicker="Flexible solutions for businesses" rows={[[{ text: 'Our', tone: 'lime' }], [{ text: 'Services', tone: 'red' }]]} />
+        <StickerHeading as="h1" id="services-title" kicker="Flexible solutions for businesses" rows={[[{ text: 'Our', tone: 'lime' }], [{ text: 'Services', tone: 'red' }]]} />
         <p>Send one product or a multi-product requirement, and our team will review the appropriate B2B supply route.</p>
       </header>
 

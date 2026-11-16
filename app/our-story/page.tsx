@@ -30,7 +30,7 @@ export default function OurStoryPage() {
 
       <section className="content-hero story-hero" aria-labelledby="story-page-title">
         <div className="about-copy">
-          <StickerHeading id="story-page-title" size="md" align="start" rays={false}
+          <StickerHeading as="h1" id="story-page-title" size="md" align="start" rays={false}
             kicker="Our story"
             rows={[[{ text: 'About', tone: 'pink' }], [{ text: 'Us', tone: 'purple' }]]} />
           <p className="about-lead">Built on Trust. Driven by Quality.</p>

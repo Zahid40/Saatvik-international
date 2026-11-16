@@ -15,7 +15,7 @@ export default function CertificationsPage() {
     <main id="main" className="content-page certifications-page shell">
       <nav className="breadcrumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span aria-current="page">Certifications</span></nav>
       <header className="content-page-header">
-        <StickerHeading id="certifications-title" kicker="Registrations held by Saatvik" rows={[[{ text: 'Our', tone: 'pink' }], [{ text: 'Certificates', tone: 'purple' }]]} />
+        <StickerHeading as="h1" id="certifications-title" kicker="Registrations held by Saatvik" rows={[[{ text: 'Our', tone: 'pink' }], [{ text: 'Certificates', tone: 'purple' }]]} />
         <p>Business and food registrations confirmed by Saatvik International. Official marks are shown in their original form.</p>
       </header>
 

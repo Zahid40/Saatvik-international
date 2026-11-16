@@ -219,7 +219,7 @@ export function SiteHeader() {
           <Link className="mobile-nav-category" href="/catalog" onClick={() => setMenuOpen(false)}>All products</Link>
           <p className="mobile-nav-label">Services</p>
           {serviceLinks.map(link => (
-            <Link key={link.href} className="mobile-nav-category" href={link.href} onClick={() => setMenuOpen(false)}>{link.label}</Link>
+            <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>{link.label}</Link>
           ))}
           <NavLinks onClick={() => setMenuOpen(false)} />
           <p className="mobile-nav-label">Company</p>

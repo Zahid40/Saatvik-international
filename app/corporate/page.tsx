@@ -51,7 +51,7 @@ export default function CorporatePage() {
       <div className="shell">
         <nav className="breadcrumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span aria-current="page">Corporate &amp; Bulk Supply</span></nav>
         <header className="content-page-header">
-          <StickerHeading id="corporate-title" kicker="B2B sourcing enquiries" rows={[[{ text: 'Corporate', tone: 'lime' }], [{ text: '& Bulk', tone: 'red' }]]} />
+          <StickerHeading as="h1" id="corporate-title" kicker="B2B sourcing enquiries" rows={[[{ text: 'Corporate', tone: 'lime' }], [{ text: '& Bulk', tone: 'red' }]]} />
           <p>Pantry and vending supply, corporate gifting and customised bulk orders of makhana, roasted puffs and freeze-dried fruits, all through one direct enquiry.</p>
         </header>
 
